@@ -1,0 +1,279 @@
+---
+title: "Untitled"
+author: "赵善睿"
+date: "2024/12/23"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+## 加载包
+```{r}
+library(biwavelet)
+library(imputeTS)
+library(ConnectednessApproach)
+library(frequencyConnectedness)
+library(WaveletComp)
+library(knitr)
+library(tseries)
+library(vars)
+```
+
+## 读取数据、清洗数据
+```{r}
+data <- read.csv("D:/wavelet/data.csv")
+date <- as.Date(data$锘緿ate, format = "%Y/%m/%d")
+UAE <- as.numeric(data$DFM)
+New<- as.numeric(data$NXZ50)
+Russia <- as.numeric(data$Russia)
+Po <- as.numeric(data$WIG)
+Ti <- as.numeric(data$SET)
+China <- as.numeric(data$SZ)
+Si <- as.numeric(data$Singapore)
+Italy <- as.numeric(data$Italy)
+UAE <- ts(UAE)
+New <- ts(New)
+Russia <- ts(Russia)
+Po <- ts(Po)
+Ti <- ts(Ti)
+China <- ts(China)
+Si <- ts(Si)
+Italy <- ts(Italy)
+data_1 <- data.frame(cbind(China,UAE,New,Russia,Po,Ti,Si,Italy))
+
+# 数据清洗
+data_2 <- na_ma(data_1, weighting = "exponential")
+```
+
+## 对数收益率
+```{r}
+log_UAE <- 100*diff(log(data_2$UAE))
+log_New <- 100*diff(log(data_2$New))
+log_Po <- 100*diff(log(data_2$Po))
+log_Ti <- 100*diff(log(data_2$Ti))
+log_Russia <- 100*diff(log(data_2$Russia))
+log_China <- 100*diff(log(data_2$China))
+log_Si <- 100*diff(log(data_2$Si))
+log_Italy <- 100*diff(log(data_2$Italy))
+```
+
+## 整理数据
+```{r}
+date <- date[-length(date)]
+r_UAE <- data.frame(date)
+r_UAE$log_UAE <- log_UAE
+r_New <- data.frame(date)
+r_New$log_New <- log_New
+r_Po <- data.frame(date)
+r_Po$log_Po <- log_Po
+r_Ti <- data.frame(date)
+r_Ti$log_Ti <- log_Ti
+r_Russia <- data.frame(date)
+r_Russia$log_Russia <- log_Russia
+r_China <- data.frame(date)
+r_China$log_China <- log_China
+r_Si <- data.frame(date)
+r_Si$log_Si <- log_Si
+r_Italy <- data.frame(date)
+r_Italy$log_Italy <- log_Italy
+```
+
+## 数据可视化
+```{r}
+par(mfrow=c(2,4))
+plot(r_UAE,type="l")
+plot(r_New,type="l")
+plot(r_Po,type="l")
+plot(r_Ti,type="l")
+plot(r_Russia,type="l")
+plot(r_China,type="l")
+plot(r_Si,type="l")
+plot(r_Italy,type="l")
+```
+
+## 小波相干（中德）
+```{r}
+A = log_China
+B = log_German
+DT = 1:length(A)
+A = as.matrix(cbind(DT, A))
+B = as.matrix(cbind(DT, B))
+r = 2500
+wtc.AB = wtc(A, B, nrands = r)
+tiff(file =" log_China vs log_German.tiff", width=9, height=6, units="in", res=300)
+par(oma = c(0, 0, 0, 1), mar = c(5, 4, 4, 5) + 0.1)
+plot(wtc.AB, plot.phase = TRUE, lty.coi = 1, col.coi = "grey", lwd.coi = 2,
+     lwd.sig = 2, arrow.lwd = 0.03, arrow.len = 0.12, ylab = "Period", xlab = "time",
+     plot.cb = TRUE, main = "China vs German", xaxt="n")
+title = "China vs German"
+n = length(A[, 1])
+abline(v = seq(0, n, 260), h = 1:16, col = "brown", lty = 1, lwd = 1)
+dev.off()
+```
+## 小波相干（中阿）
+```{r}
+A = log_China
+B = log_UAE
+DT = 1:length(A)
+A = as.matrix(cbind(DT, A))
+B = as.matrix(cbind(DT, B))
+r = 2500
+wtc.AB = wtc(A, B, nrands = r)
+tiff(file =" log_China vs log_UAE.tiff", width=9, height=6, units="in", res=300)
+par(oma = c(0, 0, 0, 1), mar = c(5, 4, 4, 5) + 0.1)
+plot(wtc.AB, plot.phase = TRUE, lty.coi = 1, col.coi = "grey", lwd.coi = 2,
+     lwd.sig = 2, arrow.lwd = 0.03, arrow.len = 0.12, ylab = "Period", xlab = "time",
+     plot.cb = TRUE, main = "China vs UAE", xaxt="n")
+title = "China vs UAE"
+n = length(A[, 1])
+abline(v = seq(0, n, 260), h = 1:16, col = "brown", lty = 1, lwd = 1)
+dev.off()
+```
+
+## 小波相干（中新）
+```{r}
+A = log_China
+B = log_New
+DT = 1:length(A)
+A = as.matrix(cbind(DT, A))
+B = as.matrix(cbind(DT, B))
+r = 2500
+wtc.AB = wtc(A, B, nrands = r)
+tiff(file =" log_China vs log_New.tiff", width=9, height=6, units="in", res=300)
+par(oma = c(0, 0, 0, 1), mar = c(5, 4, 4, 5) + 0.1)
+plot(wtc.AB, plot.phase = TRUE, lty.coi = 1, col.coi = "grey", lwd.coi = 2,
+     lwd.sig = 2, arrow.lwd = 0.03, arrow.len = 0.12, ylab = "Period", xlab = "time",
+     plot.cb = TRUE, main = "China vs New", xaxt="n")
+title = "China vs New"
+n = length(A[, 1])
+abline(v = seq(0, n, 260), h = 1:16, col = "brown", lty = 1, lwd = 1)
+dev.off()
+```
+
+## 小波相干（中波）
+```{r}
+A = log_China
+B = log_Po
+DT = 1:length(A)
+A = as.matrix(cbind(DT, A))
+B = as.matrix(cbind(DT, B))
+r = 2500
+wtc.AB = wtc(A, B, nrands = r)
+tiff(file =" log_China vs log_Po.tiff", width=9, height=6, units="in", res=300)
+par(oma = c(0, 0, 0, 1), mar = c(5, 4, 4, 5) + 0.1)
+plot(wtc.AB, plot.phase = TRUE, lty.coi = 1, col.coi = "grey", lwd.coi = 2,
+     lwd.sig = 2, arrow.lwd = 0.03, arrow.len = 0.12, ylab = "Period", xlab = "time",
+     plot.cb = TRUE, main = "China vs Po", xaxt="n")
+title = "China vs Po"
+n = length(A[, 1])
+abline(v = seq(0, n, 260), h = 1:16, col = "brown", lty = 1, lwd = 1)
+dev.off()
+```
+
+## 小波相干（中泰）
+```{r}
+A = log_China
+B = log_Ti
+DT = 1:length(A)
+A = as.matrix(cbind(DT, A))
+B = as.matrix(cbind(DT, B))
+r = 2500
+wtc.AB = wtc(A, B, nrands = r)
+tiff(file =" log_China vs log_Ti.tiff", width=9, height=6, units="in", res=300)
+par(oma = c(0, 0, 0, 1), mar = c(5, 4, 4, 5) + 0.1)
+plot(wtc.AB, plot.phase = TRUE, lty.coi = 1, col.coi = "grey", lwd.coi = 2,
+     lwd.sig = 2, arrow.lwd = 0.03, arrow.len = 0.12, ylab = "Period", xlab = "time",
+     plot.cb = TRUE, main = "China vs Ti", xaxt="n")
+title = "China vs Ti"
+n = length(A[, 1])
+abline(v = seq(0, n, 260), h = 1:16, col = "brown", lty = 1, lwd = 1)
+dev.off()
+```
+
+## 小波相干（中俄）
+```{r}
+A = log_China
+B = log_Russia
+DT = 1:length(A)
+A = as.matrix(cbind(DT, A))
+B = as.matrix(cbind(DT, B))
+r = 2500
+wtc.AB = wtc(A, B, nrands = r)
+tiff(file =" log_China vs log_Russia.tiff", width=9, height=6, units="in", res=300)
+par(oma = c(0, 0, 0, 1), mar = c(5, 4, 4, 5) + 0.1)
+plot(wtc.AB, plot.phase = TRUE, lty.coi = 1, col.coi = "grey", lwd.coi = 2,
+     lwd.sig = 2, arrow.lwd = 0.03, arrow.len = 0.12, ylab = "Period", xlab = "time",
+     plot.cb = TRUE, main = "China vs Russia", xaxt="n")
+title = "China vs Russia"
+n = length(A[, 1])
+abline(v = seq(0, n, 260), h = 1:16, col = "brown", lty = 1, lwd = 1)
+dev.off()
+```
+
+## 小波相干（中新加坡）
+```{r}
+A = log_China
+B = log_Si
+DT = 1:length(A)
+A = as.matrix(cbind(DT, A))
+B = as.matrix(cbind(DT, B))
+r = 2500
+wtc.AB = wtc(A, B, nrands = r)
+tiff(file =" log_China vs log_Si.tiff", width=9, height=6, units="in", res=300)
+par(oma = c(0, 0, 0, 1), mar = c(5, 4, 4, 5) + 0.1)
+plot(wtc.AB, plot.phase = TRUE, lty.coi = 1, col.coi = "grey", lwd.coi = 2,
+     lwd.sig = 2, arrow.lwd = 0.03, arrow.len = 0.12, ylab = "Period", xlab = "time",
+     plot.cb = TRUE, main = "China vs Si", xaxt="n")
+title = "China vs Si"
+n = length(A[, 1])
+abline(v = seq(0, n, 260), h = 1:16, col = "brown", lty = 1, lwd = 1)
+dev.off()
+```
+
+## 小波相干（中意）
+```{r}
+A = log_China
+B = log_Italy
+DT = 1:length(A)
+A = as.matrix(cbind(DT, A))
+B = as.matrix(cbind(DT, B))
+r = 2500
+wtc.AB = wtc(A, B, nrands = r)
+tiff(file =" log_China vs log_Italy.tiff", width=9, height=6, units="in", res=300)
+par(oma = c(0, 0, 0, 1), mar = c(5, 4, 4, 5) + 0.1)
+plot(wtc.AB, plot.phase = TRUE, lty.coi = 1, col.coi = "grey", lwd.coi = 2,
+     lwd.sig = 2, arrow.lwd = 0.03, arrow.len = 0.12, ylab = "Period", xlab = "time",
+     plot.cb = TRUE, main = "China vs Italy", xaxt="n")
+title = "China vs Italy"
+n = length(A[, 1])
+abline(v = seq(0, n, 260), h = 1:16, col = "brown", lty = 1, lwd = 1)
+dev.off()
+```
+
+
+
+
+
+
